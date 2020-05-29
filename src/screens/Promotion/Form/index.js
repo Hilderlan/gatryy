@@ -1,13 +1,13 @@
 import React from 'react';
-// import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PromotionForm from '../../../components/Promotion/Form';
 
 const PromotionFormScreen = () => {
-  // const { id } = useParams();
+  const { id } = useParams();
 
   return (
     <div>
-      <PromotionForm />
+      <PromotionForm id={ id ? Number.parseInt(id, 10) : null } />
     </div>
   )
 }
