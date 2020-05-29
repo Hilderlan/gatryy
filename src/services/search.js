@@ -1,7 +1,7 @@
 import Api from './api';
  
 const SearchService = {
-  index: () => Api.get('/promotions?_embed=comments'),
+  index: (params) => Api.get('/promotions?_embed=comments', { params }),
   // show: (id) => Api.get(`/albums/${id}`)
 }
  
