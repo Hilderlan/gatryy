@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import UIContainer from '../../UI/Container';
-import PromotionsService from '../../../services/promotions';
+import useApi from '../../utils/useApi';
 import './styles.css'
 
 const initialValues = {
@@ -14,13 +14,27 @@ const initialValues = {
 const PromotionForm = ({ id }) => {
   const [values, setValues] = useState( id ? null : initialValues);
   const history = useHistory();
+  const [load] = useApi({
+    url: `/promotions/${id}`,
+    method: 'get',
+    onCompleted: (response) => {
+      setValues(response.data);
+    }
+  });
+
+  const [save, saveInfo] = useApi({
+    url: id ? `/promotions/${id}` : '/promotions',
+    method: id ? 'put' : 'post',
+    onCompleted: (response) => {
+      if(!response.error) {
+        history.push('/');
+      }
+    }
+  });
 
   useEffect(() => {
     if(id){
-      PromotionsService.edit(id)
-        .then((response) => {
-          setValues(response.data);
-        });
+      load();
     }
   }, [id]);
 
@@ -33,18 +47,9 @@ const PromotionForm = ({ id }) => {
   function onSubmit(e) {
     e.preventDefault();
 
-    if (id) {
-      PromotionsService.update(values, id)
-        .then(() => {
-          history.push('/');
-        });
-    }
-    else {
-      PromotionsService.create(values)
-        .then(() => {
-          history.push('/');
-        });
-    }
+    save({
+      data: values
+    })
   }
 
   return(
@@ -61,6 +66,7 @@ const PromotionForm = ({ id }) => {
         ? <div>Carregando</div>
         : (
           <form onSubmit={ onSubmit }>
+            {saveInfo.loading && <span>Salvando dados...</span>}
             <div className="promotion-form__group">
               <label htmlFor="title">Título</label>
               <input id="title" type="text" name="title" value={values.title} onChange={ onChange } />

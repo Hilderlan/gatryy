@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './styles.css'
-import SearchService from '../../../services/search';
+import useApi from '../../utils/useApi';
 import PromotionList from '../../../components/Promotion/List';
 
 const PromotionSearch = () => {
-  const [promotions, setPromotions] = useState([]);
   const [search, setSearch] = useState('');
+  const [load, loadInfo] = useApi({
+    url: '/promotions',
+    method: 'get',
+    params: {
+      _embed: 'comments',
+      _order: 'desc',
+      _sort: 'id',
+      title_like: search || undefined
+    }
+  });
 
   useEffect(() => {
-    const params = {}
-    if(search) {
-      params.title_like = search
-    }
-
-    SearchService.index(params)
-      .then((response) => {
-        setPromotions(response.data);
-      });
+    load();
   }, [search]);
 
   return (
@@ -28,7 +29,7 @@ const PromotionSearch = () => {
       </header>
       <input type="search" placeholder="Buscar" value={ search } onChange={(e) => setSearch(e.target.value)} className="promotions-search__input" />
 
-      <PromotionList promotions={ promotions } loading={ !promotions.length } />
+      <PromotionList promotions={ loadInfo.data } loading={ loadInfo.loading } error={ loadInfo.error } />
     </div>
   )
 }
